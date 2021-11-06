@@ -5,7 +5,7 @@ from glob import glob
 from os import curdir
 from sys import platform
 
-Player_Musica = Player_Variaveis()
+Player_Musica = Player()
 class Funcoes_Player(object):
 
     def buscar_arquivos_mp3(self):

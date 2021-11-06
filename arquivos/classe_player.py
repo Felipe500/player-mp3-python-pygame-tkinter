@@ -1,6 +1,6 @@
 
 
-class Player_Variaveis(object):
+class Player(object):
     def __init__(self):
         self.frequencia_som = 44100
         self.playlist = []
