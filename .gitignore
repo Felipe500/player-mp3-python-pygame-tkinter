@@ -1,4 +1,14 @@
 .idea
+.git
 venv
+env
 __pycache__
-
+__pycache__/
+*.log
+*.pot
+*.pyc
+*.idea
+*.sqlite3
+*.env
+*pyc
+.DS_Store
