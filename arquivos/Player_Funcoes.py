@@ -1,12 +1,22 @@
 from pygame import mixer, mixer_music
-from os.path import dirname, join, basename
+from os.path import join, basename
 from arquivos.classe_player import *
 from glob import glob
 from os import curdir
 from sys import platform
+import audioread
 
 Player_Musica = Player()
-class Funcoes_Player(object):
+
+
+class Funcoes_Player(Player):
+    bar_progress_value = 1
+    duration_music = 1
+    pos_music = 0
+
+    def __init__(self):
+        super().__init__()
+        self.tocando = None
 
     def buscar_arquivos_mp3(self):
         #verificar se a lista já possui musicas
@@ -49,111 +59,85 @@ class Funcoes_Player(object):
 
         print("player de musica inicializou...")
 
-
-    def inicio(self):
+    def mixer_pre_init(self):
         print("bem-vindo ao Music x....")
         mixer.pre_init(frequency=Player_Musica.frequencia_som, size=-16, channels=2, buffer=5996)
         mixer.init()
 
-
     def iniciar(self):
-        tocando = mixer_music.get_busy()
-        if tocando == False:
-            x = mixer_music.get_busy()
-            musica = mixer_music.load(Player_Musica.playlist[Player_Musica.rodando])
-            mixer_music.set_volume(Player_Musica.volume)
-            mixer_music.play()
+        self.mixer_pre_init()
+        self.tocando = mixer_music.get_busy()
 
-        else:
-            print("já inicializado")
-        print("frequênci atual:  ", Player_Musica.frequencia_som)
-        print(Player_Musica.rodando + 1, ' ', basename(Player_Musica.playlist[Player_Musica.rodando]))
-
+        if not self.tocando:
+            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
 
     def encerrar_mixer_audio(self):
         mixer_music.stop()
         mixer.quit()
         print("Encerrando music_x player.....")
 
-    def play_pause(self):
-        """
-        Pause e Continue a musica
-        :return: string contendo o texto para usar no botão play-pause
-        """
-        acao = ''
-        tocando = mixer_music.get_busy()
-        if tocando == False:
+    def pause_continue(self):
+        self.tocando = mixer_music.get_busy()
+
+        if self.get_pos_music() < 0:
+            mixer_music.play()
+
+        if not self.tocando:
+            self.tocando = True
             mixer_music.unpause()
-            print("Musica tocando")
-            acao = 'Pausar'
-            return  acao
+            return 'Pausar'
 
         else:
             mixer_music.pause()
-            acao = 'Reproduzir'
-            print("Musica em parad")
-            return acao
-
+            self.tocando = False
+            return 'Reproduzir'
 
     def reinicio(self):
         mixer_music.rewind()
-        print("Musica reinicializada")
 
+    def set_volume(self, volume):
+        self.volume = volume
+        mixer_music.set_volume(self.volume)
+        return self.volume
 
-    def aumentar_vol(self):
-
-        self.volume = self.volume + 0.05
-        if self.volume > 1:
-            self.volume = 1
-            mixer_music.set_volume(self.volume)
-            print('volume: ', str(self.volume))
-        else:
-            mixer_music.set_volume(self.volume)
-            print('volume: ', str(self.volume))
-
-
-    def abaixar_vol(self):
-        self.volume = self.volume - 0.05
-        if self.volume < 0:
-            self.volume = 0
-            mixer_music.set_volume(self.volume)
-            print('volume: ', str(self.volume))
-        else:
-            vol = mixer.music.set_volume(self.volume)
-            print('volume: ', str(self.volume))
-
+    def play_music(self, music: str, pos: float = 0.0):
+        mixer_music.load(music)
+        mixer_music.set_volume(Player_Musica.volume)
+        mixer_music.play(start=pos)
+        self.get_duration_music(music)
+        self.tocando = True
 
     def avancar_musica(self):
         if Player_Musica.rodando + 1 >= len(Player_Musica.playlist):
-            mixer_music.stop
+            mixer_music.stop()
             Player_Musica.rodando = 0
-            musica = mixer_music.load(Player_Musica.playlist[Player_Musica.rodando])
-            mixer_music.play()
-            print("if frequência de som atual:  ", Player_Musica.frequencia_som)
-            print(Player_Musica.rodando + 1, ' ', basename(Player_Musica.playlist[Player_Musica.rodando]))
+            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
 
         else:
-            mixer_music.stop
+            mixer_music.stop()
             Player_Musica.rodando = Player_Musica.rodando + 1
-            musica = mixer_music.load(Player_Musica.playlist[Player_Musica.rodando])
-            mixer_music.play()
-            print("else frequência de som atual:  ", Player_Musica.frequencia_som)
-            print(Player_Musica.rodando + 1, ' ', basename(Player_Musica.playlist[Player_Musica.rodando]))
-
+            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
 
     def voltar_musica(self):
         if Player_Musica.rodando <= 0:
-            mixer_music.stop
+            mixer_music.stop()
             total_musicas = len(Player_Musica.playlist)
             Player_Musica.rodando = total_musicas - 1
-            musica = mixer_music.load(Player_Musica.playlist[Player_Musica.rodando])
-            mixer_music.play()
-            print("frequência de som atual:  ", Player_Musica.frequencia_som)
-            print(Player_Musica.rodando + 1, ' ', basename(Player_Musica.playlist[Player_Musica.rodando]))
+            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
         else:
-            mixer_music.stop
+            mixer_music.stop()
             Player_Musica.rodando = Player_Musica.rodando - 1
-            musica = mixer_music.load(Player_Musica.playlist[Player_Musica.rodando])
-            mixer_music.play()
-            print("frequência de som atual:  ", Player_Musica.frequencia_som)
-            print(Player_Musica.rodando + 1, ' ', basename(Player_Musica.playlist[Player_Musica.rodando]))
+            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
+
+    def get_pos_music(self):
+        if self.pos_music == 0:
+            self.pos_music = mixer_music.get_pos() / 1000
+        return mixer_music.get_pos() / 1000
+
+    def set_pos_music(self, value: float):
+        self.play_music(Player_Musica.playlist[Player_Musica.rodando], float(value))
+
+    def get_duration_music(self, set_music_started: str):
+        with audioread.audio_open(set_music_started) as f:
+            self.duration_music = f.duration
+        return self.duration_music
