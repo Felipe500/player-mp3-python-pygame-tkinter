@@ -34,7 +34,6 @@ class Player(VariablesPlayer):
             except:
                 print("O player não encontrou musicas na pasta selecionada!...")
 
-            print("player de musica inicializou...")
         # verificando qual o sistema operacional está em uso
         if 'win' in platform:
             print(self.windows)
@@ -46,7 +45,7 @@ class Player(VariablesPlayer):
                     # nome da musica
                     print(self.nmusicas, '°', basename(musica[:-4]).replace('_', ' '))
                     # adicionar a lista de reprodrução
-                    self.Player_Musica.append(musica)
+                    self.playlist.append(musica)
 
             except:
                 print("O player não encontrou musicas na pasta selecionada!...")
@@ -67,6 +66,7 @@ class Player(VariablesPlayer):
             self.play_music(self.playlist[self.rodando])
 
     def encerrar_mixer_audio(self):
+        self.encerrar = True
         mixer_music.stop()
         mixer.quit()
         print("Encerrando music_x player.....")
@@ -130,7 +130,7 @@ class Player(VariablesPlayer):
         return mixer_music.get_pos() / 1000
 
     def set_pos_music(self, value: float):
-        self.play_music(self.playlist[self.rodando], float(value))
+        mixer_music.set_pos(value)
 
     def get_duration_music(self, set_music_started: str):
         with audioread.audio_open(set_music_started) as f:

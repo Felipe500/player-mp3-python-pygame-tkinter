@@ -1,11 +1,11 @@
 
-
-class Player(object):
+class VariablesPlayer(object):
     def __init__(self):
         self.frequencia_som = 44100
         self.playlist = []
-        self.tocar = True
         self.volume = 0.5
+        self.tocando = False
+        self.encerrar = False
         # numero da lista de directorio
         self.rodando = 0
         # contador de musicas
@@ -21,5 +21,3 @@ class Player(object):
         # veja qual o sistema operacional que você esta utilizando e coloque o diretorio de suas músicas aqui
         self.pasta_linux = "/home/felipe-brx/Música"
         self.pasta_windows = "D:/musicas"
-
-
