@@ -1,7 +1,7 @@
 import math
 
-from app.player import Player
-from app.gui import GuiAplication
+from arquivos.player import Player
+from arquivos.gui import GuiAplication
 
 
 class Aplication(GuiAplication, Player):

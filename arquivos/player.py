@@ -1,10 +1,12 @@
+import audioread
 from pygame import mixer, mixer_music
 from os.path import join, basename
-from arquivos.var_player import *
+
 from glob import glob
 from os import curdir
 from sys import platform
-import audioread
+
+from .var_player import VariablesPlayer
 
 
 class Player(VariablesPlayer):
