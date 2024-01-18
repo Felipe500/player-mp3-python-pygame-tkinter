@@ -1,58 +1,52 @@
 from pygame import mixer, mixer_music
 from os.path import join, basename
-from arquivos.classe_player import *
+from arquivos.var_player import *
 from glob import glob
 from os import curdir
 from sys import platform
 import audioread
 
-Player_Musica = Player()
 
-
-class Funcoes_Player(Player):
-    bar_progress_value = 1
-    duration_music = 1
-    pos_music = 0
-
-    def __init__(self):
-        super().__init__()
-        self.tocando = None
+class Player(VariablesPlayer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def buscar_arquivos_mp3(self):
         #verificar se a lista já possui musicas
         # caso sim, a lista será limpada
-        if len(Player_Musica.playlist) > 0:
-            Player_Musica.playlist.clear()
+        print('pasta_linux', self.pasta_linux)
+        if len(self.playlist) > 0:
+            self.playlist.clear()
             print('limpando lista')
         #verificando qual o sistema operacional está em uso
         if 'linux' in platform:
-            print(Player_Musica.Linux)
+            print(self.Linux)
             try:
-                Player_Musica.nmusicas = 0
-                for musica in glob(join(curdir, Player_Musica.pasta_linux, '*.mp3')):
+                self.nmusicas = 0
+                for musica in glob(join(curdir, self.pasta_linux, '*.mp3')):
                     # contar numero de musicas
-                    Player_Musica.nmusicas = Player_Musica.nmusicas + 1
+                    self.nmusicas = self.nmusicas + 1
                     # nome da musica
-                    print(Player_Musica.nmusicas, '°', basename(musica[:-4]).replace('_', ' '))
+                    print(self.nmusicas, '°', basename(musica[:-4]).replace('_', ' '))
                     # exibir caminhos de musicas
                     # adicionar a lista de reprodrução
-                    Player_Musica.playlist.append(musica)
+                    self.playlist.append(musica)
             except:
                 print("O player não encontrou musicas na pasta selecionada!...")
 
             print("player de musica inicializou...")
         # verificando qual o sistema operacional está em uso
         if 'win' in platform:
-            print(Player_Musica.windows)
+            print(self.windows)
             try:
-                Player_Musica.nmusicas = 0
-                for musica in glob(join(curdir, Player_Musica.pasta_windows, '*.mp3')):
+                self.nmusicas = 0
+                for musica in glob(join(curdir, self.pasta_windows, '*.mp3')):
                     # contar numero de musicas
-                    Player_Musica.nmusicas = Player_Musica.nmusicas + 1
+                    self.nmusicas = self.nmusicas + 1
                     # nome da musica
-                    print(Player_Musica.nmusicas, '°', basename(musica[:-4]).replace('_', ' '))
+                    print(self.nmusicas, '°', basename(musica[:-4]).replace('_', ' '))
                     # adicionar a lista de reprodrução
-                    Player_Musica.Player_Musica.append(musica)
+                    self.Player_Musica.append(musica)
 
             except:
                 print("O player não encontrou musicas na pasta selecionada!...")
@@ -61,15 +55,16 @@ class Funcoes_Player(Player):
 
     def mixer_pre_init(self):
         print("bem-vindo ao Music x....")
-        mixer.pre_init(frequency=Player_Musica.frequencia_som, size=-16, channels=2, buffer=5996)
+        mixer.pre_init(frequency=self.frequencia_som, size=-16, channels=2, buffer=5996)
         mixer.init()
 
     def iniciar(self):
         self.mixer_pre_init()
         self.tocando = mixer_music.get_busy()
+        total_musicas = len(self.playlist)
 
-        if not self.tocando:
-            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
+        if not self.tocando and total_musicas > 0:
+            self.play_music(self.playlist[self.rodando])
 
     def encerrar_mixer_audio(self):
         mixer_music.stop()
@@ -102,32 +97,32 @@ class Funcoes_Player(Player):
 
     def play_music(self, music: str, pos: float = 0.0):
         mixer_music.load(music)
-        mixer_music.set_volume(Player_Musica.volume)
+        mixer_music.set_volume(self.volume)
         mixer_music.play(start=pos)
         self.get_duration_music(music)
         self.tocando = True
 
     def avancar_musica(self):
-        if Player_Musica.rodando + 1 >= len(Player_Musica.playlist):
+        if self.rodando + 1 >= len(self.playlist):
             mixer_music.stop()
-            Player_Musica.rodando = 0
-            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
+            self.rodando = 0
+            self.play_music(self.playlist[self.rodando])
 
         else:
             mixer_music.stop()
-            Player_Musica.rodando = Player_Musica.rodando + 1
-            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
+            self.rodando = self.rodando + 1
+            self.play_music(self.playlist[self.rodando])
 
     def voltar_musica(self):
-        if Player_Musica.rodando <= 0:
+        if self.rodando <= 0:
             mixer_music.stop()
-            total_musicas = len(Player_Musica.playlist)
-            Player_Musica.rodando = total_musicas - 1
-            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
+            total_musicas = len(self.playlist)
+            self.rodando = total_musicas - 1
+            self.play_music(self.playlist[self.rodando])
         else:
             mixer_music.stop()
-            Player_Musica.rodando = Player_Musica.rodando - 1
-            self.play_music(Player_Musica.playlist[Player_Musica.rodando])
+            self.rodando = self.rodando - 1
+            self.play_music(self.playlist[self.rodando])
 
     def get_pos_music(self):
         if self.pos_music == 0:
@@ -135,7 +130,7 @@ class Funcoes_Player(Player):
         return mixer_music.get_pos() / 1000
 
     def set_pos_music(self, value: float):
-        self.play_music(Player_Musica.playlist[Player_Musica.rodando], float(value))
+        self.play_music(self.playlist[self.rodando], float(value))
 
     def get_duration_music(self, set_music_started: str):
         with audioread.audio_open(set_music_started) as f:

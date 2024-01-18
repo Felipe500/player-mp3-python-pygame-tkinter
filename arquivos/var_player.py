@@ -5,12 +5,13 @@ class Player(object):
         self.frequencia_som = 44100
         self.playlist = []
         self.tocar = True
-        self.volume = 0.4000000
+        self.volume = 0.5
         # numero da lista de directorio
         self.rodando = 0
         # contador de musicas
         self.mm = 0
         self.nmusicas = 0
+        # progress
         self.bar_progress_value = 0
         self.pos_music = 0
         self.duration_music = 0
