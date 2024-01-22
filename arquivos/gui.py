@@ -1,5 +1,6 @@
 from tkinter import Label, HORIZONTAL
 import customtkinter
+from PIL import ImageTk, Image
 
 customtkinter.set_appearance_mode("System")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("green")  # Themes: blue (default), dark-blue, green
@@ -28,6 +29,7 @@ class GuiAplication:
     def build_interface(self):
         self.tela_principal()
         self.frames_tela()
+        self.widgets_frame_secundaria()
         self.widgets_descricao_musica()
         self.widgets_controles()
         self.widgets_barra_progresso()
@@ -46,7 +48,7 @@ class GuiAplication:
         y = (screen_height / 2) - (height / 2)
 
         self.root.geometry('%dx%d+%d+%d' % (width, height, x, y))
-        #self.root.geometry("800x500")
+        # self.root.geometry("800x500")
 
         self.root.resizable(True, True)
 
@@ -54,14 +56,35 @@ class GuiAplication:
         self.tela_secundaria = customtkinter.CTkFrame(master=self.root, width=320, height=360, corner_radius=15)
         self.tela_secundaria.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.97)
 
-        self.descricao_musica = customtkinter.CTkFrame(master=self.tela_secundaria, width=320, height=100, corner_radius=0)
-        self.descricao_musica.place(relx=0.025, rely=0.01, relwidth=0.95, relheight=0.05)
+        self.descricao_musica = customtkinter.CTkFrame(master=self.tela_secundaria, width=320, height=100,
+                                                       corner_radius=0)
+        self.descricao_musica.place(relx=0.025, rely=0.01, relwidth=0.98, relheight=0.06)
 
-        self.barra_progresso = customtkinter.CTkFrame(master=self.tela_secundaria, width=320, height=100, corner_radius=0)
+        self.barra_progresso = customtkinter.CTkFrame(master=self.tela_secundaria, width=320, height=100,
+                                                      corner_radius=0)
         self.barra_progresso.place(relx=0.025, rely=0.80, relwidth=0.95, relheight=0.05)
 
         self.controles = customtkinter.CTkFrame(master=self.tela_secundaria, width=320, height=100, corner_radius=0)
         self.controles.place(relx=0.025, rely=0.87, relwidth=0.95, relheight=0.10)
+
+    def widgets_frame_secundaria(self):
+        img_btn = customtkinter.CTkImage(
+            light_image=Image.open("examples/open_.png"),
+            dark_image=Image.open("examples/open_.png"),
+            size=(30, 30)
+        )
+
+        customtkinter.CTkButton(
+            self.descricao_musica,
+            image=img_btn,
+            border_color='red',
+            fg_color="#583bbf",
+            text='',
+            corner_radius=3,
+            hover_color='#6242d5',
+            command=self.tela_playlist
+
+        ).place(relx=0.90, rely=0, relwidth=0.1, relheight=1.01)
 
     def widgets_descricao_musica(self):
         self.label_musica = Label(
@@ -73,7 +96,7 @@ class GuiAplication:
             anchor="center",
             font=('verdana', 9, 'bold')
         )
-        self.label_musica.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.label_musica.place(relx=0, rely=0, relwidth=0.91, relheight=1)
 
     def widgets_controles(self):
         self.bt_atualizar_playlist = customtkinter.CTkButton(
@@ -154,3 +177,42 @@ class GuiAplication:
             font=('verdana', 9, 'bold')
         )
         self.label_end.place(relx=0.92, rely=0.1, relwidth=0.08, relheight=0.50)
+
+    def tela_playlist(self):
+        tela_playlist = customtkinter.CTkFrame(
+            self.tela_secundaria,
+            width=300,
+            height=500,
+        )
+        tela_playlist.place(relx=0.5, rely=0.01, relwidth=0.50, relheight=0.96)
+
+        def fechar_tela_playlist():
+            tela_playlist.destroy()
+
+        img_close = customtkinter.CTkImage(
+            light_image=Image.open("examples/close.png"),
+            dark_image=Image.open("examples/close.png"),
+            size=(30, 30)
+        )
+
+        nome_tela = Label(
+            tela_playlist,
+            text='Minha Playlist',
+            bg="#583bbf",
+            fg="white",
+            font=('verdana', 9, 'bold')
+        )
+        nome_tela.place(relx=0.01, rely=0, relwidth=0.85, relheight=0.06)
+
+        customtkinter.CTkButton(
+            tela_playlist,
+            text='',
+            image=img_close,
+            border_width=0,
+            corner_radius=0,
+            command=fechar_tela_playlist,
+            fg_color="#583bbf",
+            hover_color='#6242d5'
+
+
+        ).place(relx=0.85, rely=0, relwidth=0.15, relheight=0.06)
