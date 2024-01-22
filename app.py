@@ -34,12 +34,10 @@ class Aplication(GuiAplication, Player):
         self.bt_play_pause.configure(text=self.acao)
 
     def button_atualizar_playlist(self):
-        self.pasta_musicas = askdirectory()
+        self.pasta_musicas = askdirectory(title='Selecione pasta de músicas', initialdir=self.get_pasta_padrao())
         self.buscar_arquivos_mp3(self.pasta_musicas)
         self.iniciar()
-        print('len(self.playlist) ', len(self.playlist))
         if len(self.playlist) < 1:
-            print('re cc')
             self.label_musica.configure(text=f"--- Sem músicas na lista de reprodução ---")
             self.label_init.configure(text=f'00:00')
             self.label_end.configure(text=f'00:00')
