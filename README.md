@@ -19,6 +19,8 @@ upgrade novas funcionalidades
 
 ![alt text](https://github.com/Felipe500/player-mp3-python-pygame-tkinter/blob/main/screen_v0.3.png?raw=true)
 
+![alt text](https://github.com/Felipe500/player-mp3-python-pygame-tkinter/blob/main/screen_v0.4.png?raw=true)
+
 # Instalação
     make setup
 
