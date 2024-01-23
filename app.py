@@ -33,21 +33,39 @@ class Aplication(GuiAplication, Player):
         self.acao = self.pause_continue()
         self.bt_play_pause.configure(text=self.acao)
 
+    def selecionar_musica_playlist(self, event):
+        selecao = self.list_box_musicas.curselection()[0]
+        self.atualizar_selecao_musica(self.musica_rodando, self.list_box_musicas.curselection()[0])
+        self.musica_rodando = selecao
+        self.play_music(self.playlist['path'], selecao)
+        self.update_music_infor()
+
     def button_atualizar_playlist(self):
         self.pasta_musicas = askdirectory(title='Selecione pasta de músicas', initialdir=self.get_pasta_padrao())
+        self.fechar_tela_playlist()
         self.buscar_arquivos_mp3(self.pasta_musicas)
         self.iniciar()
-        if len(self.playlist) < 1:
+        if self.playlist['total_musicas'] < 1:
             self.label_musica.configure(text=f"--- Sem músicas na lista de reprodução ---")
             self.label_init.configure(text=f'00:00')
             self.label_end.configure(text=f'00:00')
+        else:
+            self.update_music_infor()
 
     def button_avancar(self):
+        musica_anterior = self.musica_rodando
+        print('musica_anterior ' , musica_anterior)
         self.avancar_musica()
+        print('musica_anterior ', self.musica_rodando)
+        self.atualizar_selecao_musica(musica_anterior, self.musica_rodando)
         self.update_music_infor()
 
     def button_voltar(self):
+        musica_anterior = self.musica_rodando
+        print('musica_anterior ', musica_anterior)
         self.voltar_musica()
+        print('self.musica_rodando ', self.musica_rodando)
+        self.atualizar_selecao_musica(musica_anterior, self.musica_rodando)
         self.update_music_infor()
 
     def slide_set_volume(self, event):

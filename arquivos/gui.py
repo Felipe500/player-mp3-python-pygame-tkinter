@@ -1,6 +1,8 @@
-from tkinter import Label, HORIZONTAL
+from tkinter import Label, HORIZONTAL, Listbox, SINGLE, END
+from tkinter.ttk import Scrollbar
+
 import customtkinter
-from PIL import ImageTk, Image
+from PIL import Image
 
 customtkinter.set_appearance_mode("System")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("green")  # Themes: blue (default), dark-blue, green
@@ -25,12 +27,12 @@ class GuiAplication:
         self.bt_voltar = None
         self.bt_atualizar_playlist = None
         self.acao = 'Play'
+        self.playlist_aberta = False
 
     def build_interface(self):
         self.tela_principal()
         self.frames_tela()
-        self.widgets_frame_secundaria()
-        self.widgets_descricao_musica()
+        self.widgets_tela_musica()
         self.widgets_controles()
         self.widgets_barra_progresso()
 
@@ -67,7 +69,18 @@ class GuiAplication:
         self.controles = customtkinter.CTkFrame(master=self.tela_secundaria, width=320, height=100, corner_radius=0)
         self.controles.place(relx=0.025, rely=0.87, relwidth=0.95, relheight=0.10)
 
-    def widgets_frame_secundaria(self):
+    def widgets_tela_musica(self):
+        self.label_musica = Label(
+            self.descricao_musica,
+            text='musica - xxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxx',
+            bg="#583bbf",
+            fg="white",
+            width=100,
+            anchor="center",
+            font=('verdana', 9, 'bold')
+        )
+        self.label_musica.place(relx=0, rely=0, relwidth=0.91, relheight=1)
+
         img_btn = customtkinter.CTkImage(
             light_image=Image.open("examples/open_.png"),
             dark_image=Image.open("examples/open_.png"),
@@ -85,18 +98,6 @@ class GuiAplication:
             command=self.tela_playlist
 
         ).place(relx=0.90, rely=0, relwidth=0.1, relheight=1.01)
-
-    def widgets_descricao_musica(self):
-        self.label_musica = Label(
-            self.descricao_musica,
-            text='musica - xxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxx',
-            bg="#583bbf",
-            fg="white",
-            width=100,
-            anchor="center",
-            font=('verdana', 9, 'bold')
-        )
-        self.label_musica.place(relx=0, rely=0, relwidth=0.91, relheight=1)
 
     def widgets_controles(self):
         self.bt_atualizar_playlist = customtkinter.CTkButton(
@@ -178,16 +179,21 @@ class GuiAplication:
         )
         self.label_end.place(relx=0.92, rely=0.1, relwidth=0.08, relheight=0.50)
 
+    def fechar_tela_playlist(self):
+        if self.playlist_aberta:
+            self.playlist_aberta = False
+            self.frame_playlist.destroy()
+
     def tela_playlist(self):
-        tela_playlist = customtkinter.CTkFrame(
+        self.playlist_aberta = True
+
+        self.frame_playlist = customtkinter.CTkFrame(
             self.tela_secundaria,
             width=300,
             height=500,
         )
-        tela_playlist.place(relx=0.5, rely=0.01, relwidth=0.50, relheight=0.96)
-
-        def fechar_tela_playlist():
-            tela_playlist.destroy()
+        self.frame_playlist.place(relx=0.5, rely=0, relwidth=0.50, relheight=0.79)
+        self.frame_playlist.grid_forget()
 
         img_close = customtkinter.CTkImage(
             light_image=Image.open("examples/close.png"),
@@ -196,23 +202,53 @@ class GuiAplication:
         )
 
         nome_tela = Label(
-            tela_playlist,
+            self.frame_playlist,
             text='Minha Playlist',
             bg="#583bbf",
             fg="white",
             font=('verdana', 9, 'bold')
         )
-        nome_tela.place(relx=0.01, rely=0, relwidth=0.85, relheight=0.06)
+        nome_tela.place(relx=0.01, rely=0.01, relwidth=0.85, relheight=0.07)
 
         customtkinter.CTkButton(
-            tela_playlist,
+            self.frame_playlist,
             text='',
             image=img_close,
             border_width=0,
             corner_radius=0,
-            command=fechar_tela_playlist,
+            command=self.fechar_tela_playlist,
             fg_color="#583bbf",
-            hover_color='#6242d5'
+            hover_color='#6242d5',
+            font=('verdana', 9, 'bold')
+        ).place(relx=0.85, rely=0.01, relwidth=0.15, relheight=0.07)
 
+        scrollbar = Scrollbar(self.frame_playlist, orient="vertical")
+        scrollbar.pack(side="right", fill="y")
+        scrollbar.place(relx=0.90, rely=0.09, relwidth=0.10, relheight=0.80)
 
-        ).place(relx=0.85, rely=0, relwidth=0.15, relheight=0.06)
+        self.list_box_musicas = Listbox(
+            self.frame_playlist,
+            width=2,
+            height=15,
+            selectmode=SINGLE,
+            yscrollcommand=scrollbar.set,
+            selectbackground='#7349bb',
+            selectforeground='#fff'
+        )
+        self.list_box_musicas.place(relx=0.02, rely=0.09, relwidth=0.90, relheight=0.80)
+
+        scrollbar.config(command=self.list_box_musicas.yview)
+
+        musicas = getattr(self, "playlist_listbox")
+
+        if len(musicas) > 0:
+            for musica in musicas:
+                self.list_box_musicas.insert(END, musica)
+
+            self.list_box_musicas.itemconfigure(getattr(self, 'musica_rodando'), bg="#583bbf", fg="#fff")
+            self.list_box_musicas.bind('<Double-1>', getattr(self, 'selecionar_musica_playlist'))
+
+    def atualizar_selecao_musica(self, anterior, atual):
+        if self.playlist_aberta:
+            self.list_box_musicas.itemconfigure(anterior, bg="#fff", fg="black")
+            self.list_box_musicas.itemconfigure(atual, bg="#583bbf", fg="#fff")

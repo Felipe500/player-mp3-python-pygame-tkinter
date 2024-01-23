@@ -2,7 +2,16 @@
 class VariablesPlayer(object):
     def __init__(self):
         self.frequencia_som = 44100
-        self.playlist = []
+
+        self.playlist = {
+            'musicas': [],
+            'path': [],
+            'em_reproducao': 0,
+            'total_musicas': 0
+
+        }
+        self.playlist_listbox = []
+
         self.volume = 0.5
         self.tocando = False
         self.encerrar = False
