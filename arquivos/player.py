@@ -95,7 +95,7 @@ class Player(VariablesPlayer):
 
     def avancar_musica(self):
         if self.playlist['total_musicas'] > 0:
-            if self.musica_rodando >= self.playlist['total_musicas']:
+            if self.musica_rodando + 1 >= self.playlist['total_musicas']:
                 mixer_music.stop()
                 self.musica_rodando = 0
                 self.play_music(self.playlist['path'], self.musica_rodando)
@@ -109,7 +109,7 @@ class Player(VariablesPlayer):
         if self.playlist['total_musicas'] > 0:
             if self.musica_rodando <= 0:
                 mixer_music.stop()
-                self.musica_rodando = self.playlist['total_musicas']
+                self.musica_rodando = self.playlist['total_musicas'] - 1
                 self.play_music(self.playlist['path'], self.musica_rodando)
             else:
                 mixer_music.stop()
