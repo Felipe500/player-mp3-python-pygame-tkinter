@@ -54,17 +54,13 @@ class Aplication(GuiAplication, Player):
 
     def button_avancar(self):
         musica_anterior = self.musica_rodando
-        print('musica_anterior ' , musica_anterior)
         self.avancar_musica()
-        print('musica_anterior ', self.musica_rodando)
         self.atualizar_selecao_musica(musica_anterior, self.musica_rodando)
         self.update_music_infor()
 
     def button_voltar(self):
         musica_anterior = self.musica_rodando
-        print('musica_anterior ', musica_anterior)
         self.voltar_musica()
-        print('self.musica_rodando ', self.musica_rodando)
         self.atualizar_selecao_musica(musica_anterior, self.musica_rodando)
         self.update_music_infor()
 

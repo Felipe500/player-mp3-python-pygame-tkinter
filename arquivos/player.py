@@ -19,10 +19,8 @@ class Player(VariablesPlayer):
 
     def buscar_arquivos_mp3(self, nova_pasta: str = None):
         if self.playlist['total_musicas'] > 0:
-            self.playlist.update(
-                path=[],
-                total_musicas=0,
-            )
+            self.playlist['path'].clear()
+            self.playlist['total_musicas'] = 0
             self.playlist_listbox.clear()
 
         self.pasta_musicas = nova_pasta if nova_pasta else self.get_pasta_padrao()
@@ -32,7 +30,7 @@ class Player(VariablesPlayer):
                 self.playlist_listbox.append(f" {total_musicas + 1}° {basename(musica[:-4]).replace('_', ' ')}")
                 self.playlist.update(
                     path=self.playlist['path'] + [musica],
-                    total_musicas=total_musicas,
+                    total_musicas=total_musicas + 1,
                 )
                 print(total_musicas + 1, '°', basename(musica[:-4]).replace('_', ' '))
 
@@ -44,16 +42,18 @@ class Player(VariablesPlayer):
             mixer_music.unload()
 
     def mixer_pre_init(self):
-        print("bem-vindo ao Music x....")
-        mixer.pre_init(frequency=self.frequencia_som, size=-16, channels=2, buffer=5996)
-        mixer.init()
+        if not mixer.get_init():
+            mixer.pre_init(frequency=self.frequencia_som, size=-16, channels=2, buffer=5996)
+            mixer.init()
+            print("bem-vindo ao Music x....")
 
     def iniciar(self):
         self.mixer_pre_init()
         self.tocando = mixer_music.get_busy()
+        self.musica_rodando = 0
 
         if not self.tocando and self.playlist['total_musicas'] > 0:
-            self.play_music(self.playlist['path'], 0)
+            self.play_music(self.playlist['path'], self.musica_rodando)
 
     def encerrar_mixer_audio(self):
         self.encerrar = True
