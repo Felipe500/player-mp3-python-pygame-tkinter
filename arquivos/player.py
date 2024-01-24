@@ -3,7 +3,7 @@ from os import curdir
 from os.path import join, basename, expanduser
 from sys import platform
 
-import audioread
+from mutagen.mp3 import MP3
 
 from pygame import mixer, mixer_music
 
@@ -125,12 +125,12 @@ class Player(VariablesPlayer):
         mixer_music.set_pos(value)
 
     def get_duration_music(self, set_music_started: str, duration_music: int = 0):
-        with audioread.audio_open(set_music_started) as f:
-            duration_music = f.duration
-            self.duration_music = f.duration
+        duration_music = MP3(set_music_started).info.length
+        self.duration_music = duration_music
         return duration_music
 
     def get_music_infor(self, musica):
+        print('musica  sss ', musica)
         return {
             'nome': basename(musica[:-4]).replace('_', ' '),
             'status': self.tocando,

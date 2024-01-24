@@ -1,6 +1,6 @@
-audioread==3.0.1
 customtkinter==5.2.2
 darkdetect==0.8.0
+mutagen==1.47.0
 packaging==23.2
 pillow==10.2.0
 pygame==2.5.2
