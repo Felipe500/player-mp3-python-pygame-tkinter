@@ -1,4 +1,5 @@
 import math
+import time
 
 from arquivos.player import Player
 from arquivos.gui import GuiAplication
@@ -68,27 +69,23 @@ class Aplication(GuiAplication, Player):
         self.set_volume(float(format(self.bar_volume.get() / 100, '.2f')))
 
     def update_music_infor(self):
-        duration_counter = math.trunc(float(self.data_musica['duration']))
-        duration_minutes = int(duration_counter) // 60
-        duration_seconds = int(duration_counter) % 60
+        duration_seconds = math.trunc(float(self.data_musica['duration']))
+        format_display = '%M:%S' if duration_seconds < 3600 else '%H:%M:%S'
 
-        str_seconds = f"0{duration_seconds}" if duration_seconds < 10 else f"{duration_seconds}"
-        self.label_end.configure(text=f'{duration_minutes}:{str_seconds}')
+        self.label_end.configure(text=time.strftime(format_display, time.gmtime(duration_seconds)))
         self.label_musica.configure(text=f"musica - {self.data_musica['nome']}")
 
     def update_bar_progress(self):
-        counter = math.trunc(float(self.get_pos_music()))
-        minutes = counter // 60
-        seconds = counter % 60
-        self.bar_progress_value += counter
+        pos_music_seconds = math.trunc(float(self.get_pos_music()))
+        self.bar_progress_value += pos_music_seconds
 
         if self.duration_music < 1:
             self.duration_music = 1
 
-        str_seconds = f"0{seconds}" if seconds < 10 else f"{seconds}"
+        format_display = '%M:%S' if pos_music_seconds < 3600 else '%H:%M:%S'
 
-        self.label_init.configure(text=f'{minutes}:{str_seconds}')
-        self.bar_progress.set((math.trunc((counter * 100) / self.duration_music)) / 100)
+        self.label_init.configure(text=time.strftime(format_display, time.gmtime(pos_music_seconds)))
+        self.bar_progress.set((math.trunc((pos_music_seconds * 100) / self.duration_music)) / 100)
 
         self.root.after(500, self.update_bar_progress)
 
