@@ -82,8 +82,8 @@ class GuiAplication:
         self.label_musica.place(relx=0, rely=0, relwidth=0.91, relheight=1)
 
         img_btn = customtkinter.CTkImage(
-            light_image=Image.open("examples/open_.png"),
-            dark_image=Image.open("examples/open_.png"),
+            light_image=Image.open("assets/open_.png"),
+            dark_image=Image.open("assets/open_.png"),
             size=(30, 30)
         )
 
@@ -196,8 +196,8 @@ class GuiAplication:
         self.frame_playlist.grid_forget()
 
         img_close = customtkinter.CTkImage(
-            light_image=Image.open("examples/close.png"),
-            dark_image=Image.open("examples/close.png"),
+            light_image=Image.open("assets/close.png"),
+            dark_image=Image.open("assets/close.png"),
             size=(30, 30)
         )
 
