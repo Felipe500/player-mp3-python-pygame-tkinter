@@ -1,3 +1,5 @@
+from typing import Dict
+
 from glob import glob
 from os import curdir
 from os.path import join, basename, expanduser
@@ -7,28 +9,63 @@ from mutagen.mp3 import MP3
 
 from pygame import mixer, mixer_music
 
-from .var_player import VariablesPlayer
+
+class Singleton(type):
+    _instances: Dict = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
-class Player(VariablesPlayer):
+class Player(metaclass=Singleton):
     def __init__(self, **play_data):
-        super().__init__()
+        self.frequencia_som = 44100
+        self.playlist_listbox = []
+        self.volume = 0.5
+        self.tocando = False
+        self.encerrar = False
+
+        self.playlist = {
+            'musicas': [],
+            'path': [],
+            'em_reproducao': 0,
+            'total_musicas': 0
+        }
+        self.data_musica = {
+            'nome': '',
+            'status': self.tocando,
+            'duration': 0
+        }
+        # progress
+        self.bar_progress_value = 0
+        self.pos_music = 0
+        self.duration_music = 0
+        self.buscar_arquivos_mp3()
+        self.iniciar()
+
+    @property
+    def get_playlist(self):
+        return self.playlist['musicas'] or []
 
     def get_pasta_padrao(self):
         return join(expanduser('~'), 'Música' if platform in 'linux' else 'Music')
 
     def buscar_arquivos_mp3(self, nova_pasta: str = None):
         if self.playlist['total_musicas'] > 0:
+            self.playlist['musicas'].clear()
             self.playlist['path'].clear()
             self.playlist['total_musicas'] = 0
             self.playlist_listbox.clear()
 
-        self.pasta_musicas = nova_pasta if nova_pasta else self.get_pasta_padrao()
+        pasta_playlist = nova_pasta if nova_pasta else self.get_pasta_padrao()
 
         try:
-            for total_musicas, musica in enumerate(glob(join(curdir, self.pasta_musicas, '*.mp3'))):
+            for total_musicas, musica in enumerate(glob(join(curdir, pasta_playlist, '*.mp3'))):
                 self.playlist_listbox.append(f" {total_musicas + 1}° {basename(musica[:-4]).replace('_', ' ')}")
                 self.playlist.update(
+                    musicas=self.playlist['musicas'] + [basename(musica[:-4]).replace('_', ' ')],
                     path=self.playlist['path'] + [musica],
                     total_musicas=total_musicas + 1,
                 )
@@ -108,6 +145,7 @@ class Player(VariablesPlayer):
     def voltar_musica(self):
         if self.playlist['total_musicas'] > 0:
             if self.musica_rodando <= 0:
+
                 mixer_music.stop()
                 self.musica_rodando = self.playlist['total_musicas'] - 1
                 self.play_music(self.playlist['path'], self.musica_rodando)
@@ -126,11 +164,9 @@ class Player(VariablesPlayer):
 
     def get_duration_music(self, set_music_started: str, duration_music: int = 0):
         duration_music = MP3(set_music_started).info.length
-        self.duration_music = duration_music
         return duration_music
 
     def get_music_infor(self, musica):
-        print('musica  sss ', musica)
         return {
             'nome': basename(musica[:-4]).replace('_', ' '),
             'status': self.tocando,

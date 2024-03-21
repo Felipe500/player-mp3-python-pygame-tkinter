@@ -4,6 +4,8 @@ from tkinter.ttk import Scrollbar
 import customtkinter
 from PIL import Image
 
+from arquivos.player import Player
+
 customtkinter.set_appearance_mode("System")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("green")  # Themes: blue (default), dark-blue, green
 
@@ -13,6 +15,7 @@ root = customtkinter.CTk()
 class GuiAplication:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.player = Player()
         self.root = root
         self.tela_secundaria = None
         self.label_musica = None
@@ -239,13 +242,13 @@ class GuiAplication:
 
         scrollbar.config(command=self.list_box_musicas.yview)
 
-        musicas = getattr(self, "playlist_listbox")
+        musicas = self.player.get_playlist
 
         if len(musicas) > 0:
             for musica in musicas:
                 self.list_box_musicas.insert(END, musica)
 
-            self.list_box_musicas.itemconfigure(getattr(self, 'musica_rodando'), bg="#583bbf", fg="#fff")
+            self.list_box_musicas.itemconfigure(self.player.musica_rodando, bg="#583bbf", fg="#fff")
             self.list_box_musicas.bind('<Double-1>', getattr(self, 'selecionar_musica_playlist'))
 
     def atualizar_selecao_musica(self, anterior, atual):
